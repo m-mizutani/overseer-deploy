@@ -1,0 +1,44 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          workload_identity_provider: "projects/149881676762/locations/global/workloadIdentityPools/github-pool/providers/github-actions"
+          service_account: overseer-deployer@mztn-dep.iam.gserviceaccount.com
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+      - name: Login to Google Artifact Registry
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        with:
+          registry: asia-northeast1-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
+        with:
+          push: true
+          tags: asia-northeast1-docker.pkg.dev/mztn-dep/service-images/overseer:${{ github.sha }}
+      - name: Deploy to Cloud Run Job
+        run: |
+          gcloud beta run jobs deploy overseer \
+            --image=asia-northeast1-docker.pkg.dev/mztn-dep/service-images/overseer:${{ github.sha }} \
+            --region=asia-northeast1 \
+            --set-env-vars "
+              OVERSEER_BIGQUERY_PROJECT_ID=mztn-dep,
+              OVERSEER_PUBSUB_PROJECT_ID=mztn-dep,
+              OVERSEER_PUBSUB_TOPIC_ID=alert" \
+            --service-account=overseer@mztn-dep.iam.gserviceaccount.com
