@@ -6,7 +6,7 @@ WITH
     indicator.indicator as ip_address,
     indicator.description as description
   FROM
-    `mztn-dep.pacman.otx_pulses` AS pulse,
+    `mztn-dep.drone.otx_pulses` AS pulse,
     UNNEST(indicators) AS indicator
   WHERE
     indicator.type = "IPv4" )

@@ -7,7 +7,7 @@ WITH
     as_name,
     ip_address
   FROM
-    `mztn-dep.pacman.abusech_feodo` )
+    `mztn-dep.drone.abusech_feodo` )
 SELECT
   DISTINCT logs.src_addr,
   logs.dst_addr,
