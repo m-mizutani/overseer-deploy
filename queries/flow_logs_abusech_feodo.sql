@@ -1,5 +1,6 @@
 -- title: Detect flow logs with IoC from abuse.ch Feodo Tracker
 -- limit: 10
+-- test: true, flow_logs_abusech_feodo.yml
 
 WITH
   ioc AS (

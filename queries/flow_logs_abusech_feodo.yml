@@ -1,0 +1,30 @@
+projects:
+  - id: mztn-dep
+    datasets:
+      - id: drone
+        tables:
+          - id: abusech_feodo
+            columns:
+              - name: as_name
+                type: STRING
+              - name: ip_address
+                type: STRING
+            data:
+              - as_name: test1
+                ip_address: 10.1.2.3
+              - as_name: test2
+                ip_address: 10.2.3.4
+      - id: devourer_home
+        tables:
+          - id: flow_logs
+            columns:
+              - name: src_addr
+                type: STRING
+              - name: dst_addr
+                type: STRING
+              - name: first_seen_at
+                type: TIMESTAMP
+            data:
+              - src_addr: 10.1.2.3
+                dst_addr: 10.0.0.2
+                first_seen_at: 0000-00-00T00:00:00Z

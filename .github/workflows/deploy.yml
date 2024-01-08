@@ -5,9 +5,27 @@ on:
     branches:
       - main
 
+env:
+  TAG_NAME: overseer-deploy:${{ github.sha }}
+
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: Set up Docker buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build Docker image
+        run: docker build . -t ${{ env.TAG_NAME }}
+      - name: Test image
+        run: docker run ${{ env.TAG_NAME }} test
   deploy:
     runs-on: ubuntu-latest
+    needs: test
     permissions:
       id-token: write
       contents: read
@@ -41,4 +59,5 @@ jobs:
               OVERSEER_BIGQUERY_PROJECT_ID=mztn-dep,
               OVERSEER_PUBSUB_PROJECT_ID=mztn-dep,
               OVERSEER_PUBSUB_TOPIC_ID=alert" \
+            --args run \
             --service-account=overseer@mztn-dep.iam.gserviceaccount.com
